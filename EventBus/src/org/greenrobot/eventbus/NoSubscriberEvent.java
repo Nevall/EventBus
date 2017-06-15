@@ -17,7 +17,7 @@ package org.greenrobot.eventbus;
 
 /**
  * This Event is posted by EventBus when no subscriber is found for a posted event.
- * 
+ * 无注册类Event
  * @author Markus
  */
 public final class NoSubscriberEvent {

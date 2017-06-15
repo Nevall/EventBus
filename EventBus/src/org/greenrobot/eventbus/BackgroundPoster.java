@@ -19,7 +19,7 @@ import android.util.Log;
 
 /**
  * Posts events in background.
- * 
+ * 在子线程回调订阅方法，发送event
  * @author Markus
  */
 final class BackgroundPoster implements Runnable {
@@ -34,17 +34,19 @@ final class BackgroundPoster implements Runnable {
         queue = new PendingPostQueue();
     }
 
+    // TODO: 2017/2/25 切换到子线程,将数据存入队列中，并执行回调(8.2)  
     public void enqueue(Subscription subscription, Object event) {
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         synchronized (this) {
             queue.enqueue(pendingPost);
-            if (!executorRunning) {
+            if (!executorRunning) {/*子线程回调执行订阅方法*/
                 executorRunning = true;
                 eventBus.getExecutorService().execute(this);
             }
         }
     }
 
+    // TODO: 2017/2/25 子线程通过反射执行回调订阅方法，(8.2.1) 
     @Override
     public void run() {
         try {

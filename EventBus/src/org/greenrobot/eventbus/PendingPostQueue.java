@@ -16,6 +16,7 @@
 
 package org.greenrobot.eventbus;
 
+/*自定义PendingPost队列,先入先出*/
 final class PendingPostQueue {
     private PendingPost head;
     private PendingPost tail;
@@ -46,6 +47,7 @@ final class PendingPostQueue {
         return pendingPost;
     }
 
+    /*等待固定时间后再轮循*/
     synchronized PendingPost poll(int maxMillisToWait) throws InterruptedException {
         if (head == null) {
             wait(maxMillisToWait);

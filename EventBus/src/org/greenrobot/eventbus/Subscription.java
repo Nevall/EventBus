@@ -15,6 +15,7 @@
  */
 package org.greenrobot.eventbus;
 
+/*封装注册类及订阅方法；*/
 final class Subscription {
     final Object subscriber;
     final SubscriberMethod subscriberMethod;
@@ -22,7 +23,7 @@ final class Subscription {
      * Becomes false as soon as {@link EventBus#unregister(Object)} is called, which is checked by queued event delivery
      * {@link EventBus#invokeSubscriber(PendingPost)} to prevent race conditions.
      */
-    volatile boolean active;
+    volatile boolean active;/*绑定注册时为true,解除绑定时为false*/
 
     Subscription(Object subscriber, SubscriberMethod subscriberMethod) {
         this.subscriber = subscriber;

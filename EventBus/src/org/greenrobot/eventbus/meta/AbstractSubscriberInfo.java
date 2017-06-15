@@ -46,9 +46,7 @@ public abstract class AbstractSubscriberInfo implements SubscriberInfo {
         }
         try {
             return superSubscriberInfoClass.newInstance();
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

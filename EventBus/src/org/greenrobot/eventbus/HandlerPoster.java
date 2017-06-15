@@ -19,7 +19,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
-
+/*在主线程执行回调方法，发送event*/
 final class HandlerPoster extends Handler {
 
     private final PendingPostQueue queue;
@@ -34,27 +34,30 @@ final class HandlerPoster extends Handler {
         queue = new PendingPostQueue();
     }
 
+    /**/
+    // TODO: 2017/2/25 切换到主线程,将数据存入队列中，并发送消息通知处理(8.1) 
     void enqueue(Subscription subscription, Object event) {
-        PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
+        PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);/*封装event,注册类，订阅方法*/
         synchronized (this) {
-            queue.enqueue(pendingPost);
+            queue.enqueue(pendingPost);/*存入队列中*/
             if (!handlerActive) {
                 handlerActive = true;
-                if (!sendMessage(obtainMessage())) {
+                if (!sendMessage(obtainMessage())) {/*发送消息通知处理*/
                     throw new EventBusException("Could not send handler message");
                 }
             }
         }
     }
 
+    // TODO: 2017/2/25 处理消息（8.1.1） 
     @Override
     public void handleMessage(Message msg) {
         boolean rescheduled = false;
         try {
             long started = SystemClock.uptimeMillis();
-            while (true) {
+            while (true) {/*从队列中轮循取出数据*/
                 PendingPost pendingPost = queue.poll();
-                if (pendingPost == null) {
+                if (pendingPost == null) {/*无数据*/
                     synchronized (this) {
                         // Check again, this time in synchronized
                         pendingPost = queue.poll();
@@ -64,9 +67,10 @@ final class HandlerPoster extends Handler {
                         }
                     }
                 }
-                eventBus.invokeSubscriber(pendingPost);
+                eventBus.invokeSubscriber(pendingPost);/*通过反射执行回调订阅方法，传递event*/
                 long timeInMethod = SystemClock.uptimeMillis() - started;
-                if (timeInMethod >= maxMillisInsideHandleMessage) {
+                // TODO: 2017/2/25 超时会影响什么？ 
+                if (timeInMethod >= maxMillisInsideHandleMessage) {/*超时（10毫秒）*/
                     if (!sendMessage(obtainMessage())) {
                         throw new EventBusException("Could not send handler message");
                     }

@@ -18,7 +18,7 @@ package org.greenrobot.eventbus;
 
 /**
  * Posts events in background.
- * 
+ * 在异步线程回调订阅方法，发送event
  * @author Markus
  */
 class AsyncPoster implements Runnable {
@@ -31,12 +31,14 @@ class AsyncPoster implements Runnable {
         queue = new PendingPostQueue();
     }
 
+    // TODO: 2017/2/25 切换到异步线程,将数据存入队列中，并执行回调(8.3)  
     public void enqueue(Subscription subscription, Object event) {
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         queue.enqueue(pendingPost);
         eventBus.getExecutorService().execute(this);
     }
 
+    // TODO: 2017/2/25  异步线程执行回调(8.3.1)
     @Override
     public void run() {
         PendingPost pendingPost = queue.poll();
